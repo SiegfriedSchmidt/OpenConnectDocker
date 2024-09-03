@@ -30,6 +30,8 @@ configuration while ocserv-main will use the previous configuration.
 
 ## Debian/Ubuntu:
 ```
+# Basic build tools
+apt-get install -y build-essential pkg-config
 # Required
 apt-get install -y libgnutls28-dev libev-dev
 # Optional functionality and testing
@@ -41,11 +43,13 @@ apt-get install -y libpam0g-dev liblz4-dev libseccomp-dev \
 	libsocket-wrapper gss-ntlmssp haproxy iputils-ping freeradius \
 	gawk gnutls-bin iproute2 yajl-tools tcpdump
 # For manpages
-yum install -y ronn
+apt-get install -y ronn
 ```
 
 ## Fedora/RHEL:
 ```
+# Basic build tools
+yum install -y install make automake gcc pkgconf-pkg-config
 # Required
 yum install -y gnutls-devel libev-devel
 # Optional functionality and testing
