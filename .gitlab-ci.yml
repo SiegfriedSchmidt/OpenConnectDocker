@@ -8,7 +8,7 @@ variables:
   ALPINE_BUILD: buildenv-alpine
   DEBIAN_BUILD: buildenv-debian
   DEBIAN_X86_CROSS_BUILD: buildenv-debian-x86
-  FEDORA_BUILD: buildenv-fedora39
+  FEDORA_BUILD: buildenv-fedora41
   UBUNTU16_BUILD: buildenv-ubuntu
   UBUNTU20_BUILD: buildenv-ubuntu20
   UBUNTU22_BUILD: buildenv-ubuntu22
@@ -422,6 +422,17 @@ static-analyzer/Fedora:
     when: on_failure
     paths:
       - scan-build-src/*
+
+codingstyle/Fedora:
+  stage: preliminaries
+  image: $CI_REGISTRY/$BUILD_IMAGES_PROJECT:$FEDORA_BUILD
+  script:
+  - find src/ tests/ -name '*.[ch]'| grep -Ev '^(src/http-heads.h|src/pcl|src/protobuf|src/ccan|src/inih|src/llhttp)'| xargs -I{} clang-format -style=file --dry-run {} -Werror
+  tags:
+  - saas-linux-small-amd64
+  except:
+  - tags
+  - schedules
 
 .FreeBSD:
   stage: testing
