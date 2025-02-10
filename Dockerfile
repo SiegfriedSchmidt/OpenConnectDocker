@@ -2,7 +2,6 @@
 FROM debian:bullseye-slim AS build
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install build dependencies including optional for isolate-workers
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     pkg-config \
@@ -14,6 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libev-dev \
     libnl-route-3-dev \
     libpam0g-dev \
+    libseccomp-dev \          
     ipcalc-ng \
     protobuf-c-compiler \
     libprotobuf-c-dev \
@@ -25,9 +25,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /src
 COPY . .
 
-# Regenerate build scripts and compile
 RUN autoreconf -fvi && \
-    ./configure && \
+    ./configure \
+      --with-seccomp \     
+      --enable-linux-namespaces && \
     make && \
     make install DESTDIR=/install
 
@@ -35,13 +36,12 @@ RUN autoreconf -fvi && \
 FROM debian:bullseye-slim
 ENV DEBIAN_FRONTEND=noninterciall
 
-# Install runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libev4 \
     libnl-3-200 \
     libnl-route-3-200 \
     libpam0g \
-    libseccomp2 \
+    libseccomp2 \           
     libreadline8 \
     gnutls-bin \
     iptables \
@@ -51,7 +51,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY --from=build /install/ /
 
-# Entrypoint to handle certificate generation
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
