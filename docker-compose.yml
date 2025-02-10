@@ -1,0 +1,14 @@
+services:
+  ocserv:
+    platform: linux/amd64
+    build: .
+    image: siegfriedschmidt/ocserv
+    container_name: ocserv
+    ports:
+      - "443:443/tcp"
+      - "443:443/udp"
+    volumes:
+      # Mount your host directory with your custom ocserv.conf, certificates, etc.
+      - ./config:/etc/ocserv
+    restart: unless-stopped
+    privileged: true
