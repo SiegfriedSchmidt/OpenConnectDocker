@@ -2,7 +2,7 @@
 FROM debian:bullseye-slim AS build
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install basic build tools and required libraries plus extra packages to satisfy tests/build:
+# Install build dependencies including optional for isolate-workers
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     pkg-config \
@@ -12,18 +12,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     libgnutls28-dev \
     libev-dev \
+    libnl-route-3-dev \
+    libpam0g-dev \
     ipcalc-ng \
     protobuf-c-compiler \
     libprotobuf-c-dev \
     gperf \
     libreadline-dev \
+    gnutls-bin \
  && rm -rf /var/lib/apt/lists/*
 
-# Copy the entire repository (your fork) into the build stage.
 WORKDIR /src
 COPY . .
 
-# Regenerate build scripts, configure, compile, and install into /install.
+# Regenerate build scripts and compile
 RUN autoreconf -fvi && \
     ./configure && \
     make && \
@@ -31,23 +33,26 @@ RUN autoreconf -fvi && \
 
 # === Final Stage ===
 FROM debian:bullseye-slim
-ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninterciall
 
-# Install runtime libraries needed by ocserv.
+# Install runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gnutls-bin \
     libev4 \
     libnl-3-200 \
+    libnl-route-3-200 \
     libpam0g \
-    liblz4-1 \
     libseccomp2 \
     libreadline8 \
+    gnutls-bin \
+    iptables \
     ca-certificates \
-    libprotobuf-c-dev \
  && rm -rf /var/lib/apt/lists/*
 
-# Copy the compiled files from the build stage.
 COPY --from=build /install/ /
 
-# Run ocserv in the foreground using the configuration file from /etc/ocserv/ocserv.conf.
+# Entrypoint to handle certificate generation
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/usr/local/sbin/ocserv", "--foreground", "--config", "/etc/ocserv/ocserv.conf"]

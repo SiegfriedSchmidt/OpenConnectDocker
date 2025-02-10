@@ -1,3 +1,10 @@
+# Docker
+Create user
+```bash
+docker exec -it ocserv ocpasswd -c /etc/ocserv/ocpasswd username
+```
+
+
 # About
 
 The OpenConnect VPN server (ocserv) is an open source Linux SSL
