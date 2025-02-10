@@ -43,6 +43,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libseccomp2 \
     libreadline8 \
     ca-certificates \
+    libprotobuf-c-dev \
  && rm -rf /var/lib/apt/lists/*
 
 # Copy the compiled files from the build stage.
