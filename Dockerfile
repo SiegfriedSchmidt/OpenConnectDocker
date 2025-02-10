@@ -46,6 +46,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gnutls-bin \
     iptables \
     ca-certificates \
+    libprotobuf-c1 \
  && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /install/ /
