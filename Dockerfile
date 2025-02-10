@@ -2,7 +2,7 @@
 FROM debian:bullseye-slim AS build
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install required build dependencies
+# Install basic build tools and required libraries plus extra packages to satisfy tests/build:
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     pkg-config \
@@ -15,13 +15,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ipcalc-ng \
     protobuf-c-compiler \
     libprotobuf-c-dev \
+    gperf \
+    libreadline-dev \
  && rm -rf /var/lib/apt/lists/*
 
+# Copy the entire repository (your fork) into the build stage.
 WORKDIR /src
-# Copy the entire forked repository into the build container.
 COPY . .
 
-# Regenerate build scripts and compile ocserv (using the instructions from the official README)
+# Regenerate build scripts, configure, compile, and install into /install.
 RUN autoreconf -fvi && \
     ./configure && \
     make && \
@@ -43,7 +45,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
-# Copy the compiled ocserv files from the build stage.
+# Copy the compiled files from the build stage.
 COPY --from=build /install/ /
 
+# Run ocserv in the foreground using the configuration file from /etc/ocserv/ocserv.conf.
 CMD ["/usr/local/sbin/ocserv", "--foreground", "--config", "/etc/ocserv/ocserv.conf"]
