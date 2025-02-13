@@ -50,6 +50,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
  && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /install/ /
+COPY entrypoint.sh /entrypoint.sh
 
 RUN groupadd -g 1001 ocserv && \
     useradd -u 1001 -g ocserv \
@@ -70,7 +71,6 @@ RUN groupadd -g 1001 ocserv && \
       /var/lib/ocserv && \
     chmod +x /entrypoint.sh
     
-COPY entrypoint.sh /entrypoint.sh
-
+USER ocserv
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/usr/local/sbin/ocserv", "--foreground", "--config", "/etc/ocserv/ocserv.conf"]
