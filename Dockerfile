@@ -52,22 +52,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=build /install/ /
 COPY entrypoint.sh /entrypoint.sh
 
-RUN groupadd -g 1001 ocserv && \
-    useradd -u 1001 -g ocserv \
+RUN groupadd -g 1000 ocserv && \
+    useradd -u 1000 -g ocserv \
       --no-create-home \
       --home-dir /nonexistent \
       --shell /usr/sbin/nologin \
       ocserv && \
     mkdir -p \
-      /etc/ocserv \
       /var/lib/ocserv \
       /usr/local/var/lib/ocserv && \
     chown -R ocserv:ocserv \
-      /etc/ocserv \
       /var/lib/ocserv \
       /usr/local/var/lib/ocserv && \
     chmod 750 \
-      /etc/ocserv \
       /var/lib/ocserv && \
     chmod +x /entrypoint.sh
     
