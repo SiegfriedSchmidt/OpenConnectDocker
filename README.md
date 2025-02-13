@@ -1,5 +1,11 @@
 # Docker
-Create user
+
+### Docker setup
+```bash
+mkdir config && chmod 750 config && chown 1001:1001 config
+```
+
+### Create user
 ```bash
 docker exec -it ocserv ocpasswd -c /etc/ocserv/ocpasswd username
 ```
