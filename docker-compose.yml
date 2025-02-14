@@ -7,6 +7,17 @@ services:
     ports:
       - "443:443/tcp"
       - "443:443/udp"
+    environment:
+      # Disable auto signed certificates if you already have letsencrypt certs
+      - DISABLE_AUTO_SIGNED_CERTS=false
+      # Certificates generation (openssl|gnutls) depending on the docker image used 
+      - CERT_TOOL=gnutls
+      # Use iptables to forward traffic to your external interface
+      - ENABLE_INTERNET=false
+      # Set VPN_SUBNET according to your ocserv.conf!
+      - VPN_SUBNET=10.10.10.0/24
+      # Your external interface
+      - EXT_IFACE=eth0
     volumes:
       - ./config:/etc/ocserv
     devices:

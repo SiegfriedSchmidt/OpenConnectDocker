@@ -50,7 +50,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
  && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /install/ /
-COPY entrypoint.sh /entrypoint.sh
+
+COPY scripts/* /usr/local/bin/
+RUN chmod +x /usr/local/bin/*.sh
+ENV PATH="/usr/local/bin:${PATH}"
 
 RUN groupadd -g 1001 ocserv && \
     useradd -u 1001 -g ocserv \
@@ -59,6 +62,7 @@ RUN groupadd -g 1001 ocserv && \
       --shell /usr/sbin/nologin \
       ocserv
 
+COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]

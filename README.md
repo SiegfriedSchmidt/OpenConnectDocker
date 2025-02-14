@@ -8,6 +8,7 @@
 ### Create user
 ```bash
 docker exec -it ocserv ocpasswd -c /etc/ocserv/ocpasswd username
+docker exec -it ocserv network-manager enable-internet
 ```
 
 
