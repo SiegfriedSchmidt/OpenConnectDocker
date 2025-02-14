@@ -2,7 +2,7 @@
 
 ### Docker setup
 ```bash
-mkdir config && chmod 750 config && chown 1000:1000 config
+
 ```
 
 ### Create user

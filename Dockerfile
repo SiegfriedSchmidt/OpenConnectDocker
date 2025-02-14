@@ -58,8 +58,8 @@ RUN groupadd -g 1001 ocserv && \
       --home-dir /nonexistent \
       --shell /usr/sbin/nologin \
       ocserv
-     
+
 RUN chmod +x /entrypoint.sh
-    
+
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/usr/local/sbin/ocserv", "--foreground", "--config", "/etc/ocserv/ocserv.conf"]

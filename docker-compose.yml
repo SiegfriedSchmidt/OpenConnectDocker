@@ -9,6 +9,8 @@ services:
       - "443:443/udp"
     volumes:
       - ./config:/etc/ocserv
+    devices:
+      - /dev/net/tun:/dev/net/tun
     cap_add:
       - NET_ADMIN
     sysctls:
