@@ -26,6 +26,6 @@ rm -f "$CLIENT_DIR/${USERNAME}.csr"
 openssl pkcs12 -export -out "$CLIENT_DIR/${USERNAME}.p12" \
   -inkey "$CLIENT_DIR/${USERNAME}-key.pem" \
   -in "$CLIENT_DIR/${USERNAME}-cert.pem" \
-  -certfile "$CA_DIR/ca-cert.pem" -passout pass:""
+  -certfile "$CA_DIR/ca-cert.pem" -passout pass:123
 
 echo "Client certificate for '$USERNAME' generated in $CLIENT_DIR."
