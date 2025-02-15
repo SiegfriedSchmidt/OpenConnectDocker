@@ -47,6 +47,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     iptables \
     ca-certificates \
     libprotobuf-c1 \
+    iproute2 iputils-ping curl \
  && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /install/ /
