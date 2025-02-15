@@ -10,6 +10,7 @@ fi
 USERNAME="$1"
 EXPIRATION_DAYS=${2:-3650}
 ROOT_DIR="/etc/ocserv/certs"
+CA_DIR="$ROOT_DIR/server"
 CLIENTS_DIR="$ROOT_DIR/clients/$USERNAME"
 mkdir -p "$CLIENTS_DIR"
 
@@ -24,7 +25,7 @@ encryption_key
 tls_www_client
 EOF
 certtool --generate-certificate --load-privkey "$CLIENTS_DIR/${USERNAME}-key.pem" \
-  --load-ca-certificate "$ROOT_DIR/server/ca-cert.pem" --load-ca-privkey "$ROOT_DIR/ca-key.pem" \
+  --load-ca-certificate "$CA_DIR/ca-cert.pem" --load-ca-privkey "$CA_DIR/ca-key.pem" \
   --template "$TMP_TEMPLATE" --outfile "$CLIENTS_DIR/${USERNAME}-cert.pem"
 rm -f "$TMP_TEMPLATE"
 certtool --to-p12 --load-privkey "$CLIENTS_DIR/${USERNAME}-key.pem" \

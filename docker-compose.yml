@@ -10,14 +10,10 @@ services:
     environment:
       # Disable auto signed certificates if you already have letsencrypt certs
       - DISABLE_AUTO_SIGNED_CERTS=false
-      # Certificates generation (openssl|gnutls) depending on the docker image used 
-      - CERT_TOOL=gnutls
       # Use iptables to forward traffic to your external interface
       - ENABLE_INTERNET=true
       # Set VPN_SUBNET according to your ocserv.conf!
       - VPN_SUBNET=10.10.10.0/24
-      # Docker external interface
-      - EXT_IFACE=eth0
     volumes:
       - ./config:/etc/ocserv
     devices:
@@ -28,4 +24,4 @@ services:
       - net.ipv4.ip_forward=1
     security_opt:
       - no-new-privileges:true
-    restart: no
+    restart: "no"
