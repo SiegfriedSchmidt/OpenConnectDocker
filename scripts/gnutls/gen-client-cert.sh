@@ -32,5 +32,5 @@ rm -f "$TMP_TEMPLATE"
 certtool --to-p12 --load-privkey "$CLIENTS_DIR/${USERNAME}-key.pem" \
   --pkcs-cipher 3des-pkcs12 \
   --load-certificate "$CLIENTS_DIR/${USERNAME}-cert.pem" \
-  --outfile "$CLIENTS_DIR/${USERNAME}.p12 --outder"
+  --outfile "$CLIENTS_DIR/${USERNAME}.p12" --outder
 echo "GnuTLS client certificate for '$USERNAME' generated in $CLIENTS_DIR."
