@@ -18,7 +18,7 @@ echo "Generating client certificate for '$USERNAME' using certtool..."
 certtool --generate-privkey --outfile "$CLIENTS_DIR/${USERNAME}-key.pem"
 TMP_TEMPLATE=$(mktemp)
 cat <<EOF > "$TMP_TEMPLATE"
-dn = "cn=Full Name,O=Example Org,UID=$USERNAME"
+dn = "cn=$USERNAME,O=Example Org,UID=$USERNAME"
 #if usernames are SAN(rfc822name) email addresses
 #email = "username@example.com"
 expiration_days = $EXPIRATION_DAYS
