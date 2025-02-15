@@ -39,7 +39,7 @@ crl_number = 1
 EOF
 certtool --generate-crl --load-ca-privkey "$SERVER_DIR/ca-key.pem" \
   --load-ca-certificate "$SERVER_DIR/ca-cert.pem" \
-  --template "$TMP_TEMPLATE" --outfile crl.pem
+  --template "$TMP_TEMPLATE" --outfile "$CA_DIR/crl.pem"
 rm -f "$TMP_TEMPLATE"
 
 # Generate server certificate if auto-generation is enabled
