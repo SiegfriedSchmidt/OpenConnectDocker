@@ -13,10 +13,10 @@ services:
       # Certificates generation (openssl|gnutls) depending on the docker image used 
       - CERT_TOOL=gnutls
       # Use iptables to forward traffic to your external interface
-      - ENABLE_INTERNET=false
+      - ENABLE_INTERNET=true
       # Set VPN_SUBNET according to your ocserv.conf!
       - VPN_SUBNET=10.10.10.0/24
-      # Your external interface
+      # Docker external interface
       - EXT_IFACE=eth0
     volumes:
       - ./config:/etc/ocserv

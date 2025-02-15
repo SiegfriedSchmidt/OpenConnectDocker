@@ -52,7 +52,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY --from=build /install/ /
 
-COPY scripts/* /usr/local/bin/
+COPY scripts/manage/* /usr/local/bin/
+COPY scripts/gnutls/* /usr/local/bin/
+# COPY scripts/openssl/* /usr/local/bin/
+
 RUN chmod +x /usr/local/bin/*.sh
 ENV PATH="/usr/local/bin:${PATH}"
 
