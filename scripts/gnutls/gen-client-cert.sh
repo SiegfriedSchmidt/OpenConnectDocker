@@ -28,7 +28,8 @@ certtool --generate-certificate --load-privkey "$CLIENTS_DIR/${USERNAME}-key.pem
   --load-ca-certificate "$CA_DIR/ca-cert.pem" --load-ca-privkey "$CA_DIR/ca-key.pem" \
   --template "$TMP_TEMPLATE" --outfile "$CLIENTS_DIR/${USERNAME}-cert.pem"
 rm -f "$TMP_TEMPLATE"
-certtool --to-p12 --load-privkey "$CLIENTS_DIR/${USERNAME}-key.pem" \
+certtool --to-p12 --p12-password "" \
+  --load-privkey "$CLIENTS_DIR/${USERNAME}-key.pem" \
   --load-certificate "$CLIENTS_DIR/${USERNAME}-cert.pem" \
   --outfile "$CLIENTS_DIR/${USERNAME}.p12"
 echo "GnuTLS client certificate for '$USERNAME' generated in $CLIENTS_DIR."
