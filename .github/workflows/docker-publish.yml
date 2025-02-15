@@ -2,8 +2,14 @@ name: CI/CD Docker Compose
 
 on:
   push:
+    paths-ignore:
+      - 'README.md'
+      - 'ocserv.conf'
     branches: [ 'master' ]
   pull_request:
+    paths-ignore:
+      - 'README.md'
+      - 'ocserv.conf'
     branches: [ 'master' ]
 
 jobs:
