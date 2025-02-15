@@ -2,7 +2,7 @@ services:
   ocserv:
     platform: linux/amd64
     build: .
-    image: siegfriedschmidt/ocserv
+    image: siegfriedschmidt/ocserv:openssl
     container_name: ocserv
     ports:
       - "443:443/tcp"

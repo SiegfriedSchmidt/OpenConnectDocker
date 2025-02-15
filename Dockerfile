@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libprotobuf-c-dev \
     gperf \
     libreadline-dev \
-    gnutls-bin \
+    openssl \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /src
@@ -28,7 +28,8 @@ COPY . .
 RUN autoreconf -fvi && \
     ./configure \
       --with-seccomp \     
-      --enable-linux-namespaces && \
+      --enable-linux-namespaces \
+      --without-gnutls && \
     make && \
     make install DESTDIR=/install
 
@@ -43,7 +44,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpam0g \
     libseccomp2 \           
     libreadline8 \
-    gnutls-bin \
+    openssl \
     iptables \
     ca-certificates \
     libprotobuf-c1 \
@@ -53,8 +54,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=build /install/ /
 
 COPY scripts/manage/* /usr/local/bin/
-COPY scripts/gnutls/* /usr/local/bin/
-# COPY scripts/openssl/* /usr/local/bin/
+COPY scripts/openssl/* /usr/local/bin/
+# COPY scripts/gnutls/* /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/*.sh
 ENV PATH="/usr/local/bin:${PATH}"
