@@ -9,7 +9,7 @@ services:
       - "443:443/udp"
     environment:
       # Disable auto signed certificates if you already have letsencrypt certs
-      - DISABLE_AUTO_SIGNED_CERTS=false
+      - DISABLE_AUTO_SIGNED_CERTS=true
       # Use iptables to forward traffic to your external interface
       - ENABLE_INTERNET=true
       # Set VPN_SUBNET according to your ocserv.conf!
