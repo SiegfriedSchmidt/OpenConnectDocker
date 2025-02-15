@@ -18,18 +18,19 @@ echo "Generating client certificate for '$USERNAME' using certtool..."
 certtool --generate-privkey --outfile "$CLIENTS_DIR/${USERNAME}-key.pem"
 TMP_TEMPLATE=$(mktemp)
 cat <<EOF > "$TMP_TEMPLATE"
-cn = "$USERNAME"
+dn = "cn=Full Name,O=Example Org,UID=$USERNAME"
+#if usernames are SAN(rfc822name) email addresses
+#email = "username@example.com"
 expiration_days = $EXPIRATION_DAYS
 signing_key
-encryption_key
 tls_www_client
 EOF
 certtool --generate-certificate --load-privkey "$CLIENTS_DIR/${USERNAME}-key.pem" \
   --load-ca-certificate "$CA_DIR/ca-cert.pem" --load-ca-privkey "$CA_DIR/ca-key.pem" \
   --template "$TMP_TEMPLATE" --outfile "$CLIENTS_DIR/${USERNAME}-cert.pem"
 rm -f "$TMP_TEMPLATE"
-certtool --to-p12 --p12-password "" \
-  --load-privkey "$CLIENTS_DIR/${USERNAME}-key.pem" \
+certtool --to-p12 --load-privkey "$CLIENTS_DIR/${USERNAME}-key.pem" \
+  --pkcs-cipher 3des-pkcs12 \
   --load-certificate "$CLIENTS_DIR/${USERNAME}-cert.pem" \
-  --outfile "$CLIENTS_DIR/${USERNAME}.p12"
+  --outfile "$CLIENTS_DIR/${USERNAME}.p12 --outder"
 echo "GnuTLS client certificate for '$USERNAME' generated in $CLIENTS_DIR."
