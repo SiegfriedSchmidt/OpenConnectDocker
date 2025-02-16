@@ -42,6 +42,9 @@ Commands:
 docker exec -it ocserv network-manager.sh enable-internet
 ```
 
+### Build with openssl (siegfriedschmidt/ocserv:openssl)
+https://www.infradead.org/openconnect/building.html
+
 # About
 
 The OpenConnect VPN server (ocserv) is an open source Linux SSL
