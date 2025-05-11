@@ -4,7 +4,7 @@ This repository contains code from https://gitlab.com/openconnect/ocserv
 And you can easily run ocserv compiled with openssl library (ocserv:openssl) or gnutls (ocserv)  with docker
 
 ### Docker setup
-Running docker engine is requiered
+Running docker engine is required
 
 ```bash
 mkdir ocserv
