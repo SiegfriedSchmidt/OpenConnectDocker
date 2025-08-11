@@ -36,6 +36,3 @@ Commands:
 ```bash
 docker exec -it ocserv network-manager.sh enable-internet
 ```
-
-### Build with openssl (siegfriedschmidt/ocserv:openssl)
-https://www.infradead.org/openconnect/building.html
