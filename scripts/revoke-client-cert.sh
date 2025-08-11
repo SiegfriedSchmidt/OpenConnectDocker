@@ -1,33 +1,85 @@
 #!/bin/bash
 set -e
 
-# Usage: ./revoke-client-cert.sh username
-if [ -z "$1" ]; then
-  echo "Usage: $0 username"
-  exit 1
+# Script to revoke client certificates
+# Usage: ./revoke_client.sh <client_path> [--keep-files]
+
+# Configuration
+CERTS_DIR="/etc/ocserv/certs"
+CRL_FILE="${CERTS_DIR}/crl.pem"
+TEMPLATE_FILE="${CERTS_DIR}/crl.tmpl"
+REVOKED_FILE="${CERTS_DIR}/revoked.pem"
+CA_CERT="${CERTS_DIR}/ca-cert.pem"
+CA_KEY="${CERTS_DIR}/ca-key.pem"
+
+# Check arguments
+if [ $# -lt 1 ]; then
+    echo "Error: Please provide client certificate path"
+    echo "Usage: $0 <client_path> [--keep-files]"
+    exit 1
 fi
 
-USERNAME="$1"
-ROOT_DIR="/etc/ocserv/certs"
-CA_DIR="$ROOT_DIR/server"
-CLIENT_CERT="$ROOT_DIR/clients/$USERNAME/${USERNAME}-cert.pem"
+CLIENT_PATH="$1"
+KEEP_FILES=false
 
-if [ ! -f "$CLIENT_CERT" ]; then
-  echo "Certificate for '$USERNAME' not found at $CLIENT_CERT"
-  exit 1
+# Check if --keep-files option is set
+if [ "$2" = "--keep-files" ]; then
+    KEEP_FILES=true
 fi
 
-echo "Revoking certificate for '$USERNAME'..."
+# Validate client path
+if [ ! -f "${CLIENT_PATH}" ]; then
+    echo "Error: Client certificate not found at ${CLIENT_PATH}"
+    exit 1
+fi
 
-TMP_TEMPLATE=$(mktemp)
-cat <<EOF > "$TMP_TEMPLATE"
+# Check if CA files exist
+if [ ! -f "${CA_CERT}" ] || [ ! -f "${CA_KEY}" ]; then
+    echo "Error: CA certificate or key not found in ${CERTS_DIR}"
+    exit 1
+fi
+
+# Check if CRL exists, create if not
+if [ ! -f "${CRL_FILE}" ]; then
+    echo "CRL not found, generate initial empty CRL first!"
+    exit 1
+fi
+
+# Revoke certificate
+echo "Revoking client certificate: ${CLIENT_PATH}"
+
+# Add certificate to revoked.pem
+cat "${CLIENT_PATH}" >> "${REVOKED_FILE}"
+
+# Create CRL template
+cat << _EOF_ > "${TEMPLATE_FILE}"
 crl_next_update = 365
 crl_number = 1
-EOF
-certtool --generate-crl --load-ca-privkey "$CA_DIR/ca-key.pem" \
-    --load-ca-certificate "$CA_DIR/ca-cert.pem" --load-certificate "$CLIENT_CERT" \
-    --template "$TMP_TEMPLATE" --outfile "$CA_DIR/crl.pem"
+_EOF_
 
-rm -f "$TMP_TEMPLATE"
+# Generate updated CRL
+certtool --generate-crl \
+    --load-ca-privkey "${CA_KEY}" \
+    --load-ca-certificate "${CA_CERT}" \
+    --load-certificate "${REVOKED_FILE}" \
+    --template "${TEMPLATE_FILE}" \
+    --outfile "${CRL_FILE}"
 
-echo "Certificate for '$USERNAME' revoked; new CRL is at $CA_DIR/crl.pem."
+# Cleanup
+rm -f "${TEMPLATE_FILE}"
+rm -f "${REVOKED_FILE}"
+
+# Determine client directory
+CLIENT_DIR=$(dirname "${CLIENT_PATH}")
+
+# Delete client files unless --keep-files was specified
+if [ "$KEEP_FILES" = false ]; then
+    echo "Removing client certificate files..."
+    rm -r "${CLIENT_DIR}"
+else
+    echo "Keeping client files as requested (--keep-files)"
+fi
+
+echo -e "\nCertificate revoked successfully!"
+echo "Updated CRL: ${CRL_FILE}"
+echo "Next update scheduled in 365 days"
