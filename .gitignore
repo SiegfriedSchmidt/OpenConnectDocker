@@ -1,0 +1,13 @@
+.DS_STORE
+.idea
+.venv
+.venv-linux
+venv
+files
+__pycache__
+tests
+test
+secret
+secrets
+database.sqlite
+data
