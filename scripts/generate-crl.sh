@@ -37,7 +37,6 @@ crl_number = 1
 _EOF_
 
 # Generate CRL
-echo "Generating empty CRL..."
 certtool --generate-crl \
     --load-ca-privkey "${CA_KEY}" \
     --load-ca-certificate "${CA_CERT}" \
@@ -48,4 +47,3 @@ certtool --generate-crl \
 rm -f "${TEMPLATE_FILE}"
 
 echo "Empty CRL generated: ${CRL_FILE}"
-echo "Next update scheduled in 365 days"

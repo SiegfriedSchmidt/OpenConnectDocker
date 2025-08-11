@@ -39,7 +39,6 @@ if [ -f "${SERVER_KEY}" ] && [ -f "${SERVER_CERT}" ]; then
 fi
 
 # Generate server private key
-echo "Generating server private key..."
 certtool --generate-privkey --outfile "${SERVER_KEY}"
 
 # Create temporary template file
@@ -65,7 +64,6 @@ if [ -n "${DNS_NAMES}" ]; then
 fi
 
 # Generate server certificate
-echo "Generating server certificate signed by CA..."
 certtool --generate-certificate \
     --load-privkey "${SERVER_KEY}" \
     --load-ca-certificate "${CA_CERT}" \
@@ -74,8 +72,8 @@ certtool --generate-certificate \
     --outfile "${SERVER_CERT}"
 
 # Display certificate information
-echo -e "\nServer certificate information:"
-certtool --certificate-info --infile "${SERVER_CERT}"
+# echo -e "\nServer certificate information:"
+# certtool --certificate-info --infile "${SERVER_CERT}"
 
 # Clean up template file
 rm -f "${TEMPLATE_FILE}"

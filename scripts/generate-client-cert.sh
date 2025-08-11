@@ -65,7 +65,7 @@ DN="cn=${FULL_NAME},UID=${USERNAME}"
 [ -n "${ORGANIZATION}" ] && DN="${DN},O=${ORGANIZATION}"
 
 # Generate private key
-echo -e "\n[3/4] Generating client private key..."
+echo -e -n "\n[3/4] "
 certtool --generate-privkey --outfile "${CLIENT_KEY}"
 
 # Create template

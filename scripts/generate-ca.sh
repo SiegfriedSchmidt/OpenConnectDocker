@@ -31,7 +31,6 @@ EXPIRATION_DAYS="$1"
 mkdir -p "${CERTS_DIR}"
 
 # Generate private key
-echo "Generating CA private key..."
 certtool --generate-privkey --outfile "${CA_KEY}"
 
 # Create temporary template file
@@ -50,15 +49,14 @@ crl_signing_key
 _EOF_
 
 # Generate self-signed CA certificate
-echo "Generating CA certificate..."
 certtool --generate-self-signed \
     --load-privkey "${CA_KEY}" \
     --template "${TEMPLATE_FILE}" \
     --outfile "${CA_CERT}"
 
 # Display certificate information
-echo -e "\nCertificate information:"
-certtool --certificate-info --infile "${CA_CERT}"
+# echo -e "\nCertificate information:"
+# certtool --certificate-info --infile "${CA_CERT}"
 
 # Clean up template file
 rm -f "${TEMPLATE_FILE}"

@@ -2,10 +2,11 @@
 set -e
 
 # Script to revoke client certificates
-# Usage: ./revoke_client.sh <client_path> [--keep-files]
+# Usage: ./revoke_client.sh <username> [--keep-files]
 
 # Configuration
 CERTS_DIR="/etc/ocserv/certs"
+CLIENTS_DIR="${CERTS_DIR}/clients"
 CRL_FILE="${CERTS_DIR}/crl.pem"
 TEMPLATE_FILE="${CERTS_DIR}/crl.tmpl"
 REVOKED_FILE="${CERTS_DIR}/revoked.pem"
@@ -14,13 +15,14 @@ CA_KEY="${CERTS_DIR}/ca-key.pem"
 
 # Check arguments
 if [ $# -lt 1 ]; then
-    echo "Error: Please provide client certificate path"
-    echo "Usage: $0 <client_path> [--keep-files]"
+    echo "Error: Please provide client username"
+    echo "Usage: $0 <username> [--keep-files]"
     exit 1
 fi
 
-CLIENT_PATH="$1"
+USERNAME="$1"
 KEEP_FILES=false
+CLIENT_PATH="${CLIENTS_DIR}/${USERNAME}/${USERNAME}-cert.pem"
 
 # Check if --keep-files option is set
 if [ "$2" = "--keep-files" ]; then
@@ -80,6 +82,5 @@ else
     echo "Keeping client files as requested (--keep-files)"
 fi
 
-echo -e "\nCertificate revoked successfully!"
+echo -e "\nCertificate for ${USERNAME} revoked successfully!"
 echo "Updated CRL: ${CRL_FILE}"
-echo "Next update scheduled in 365 days"
