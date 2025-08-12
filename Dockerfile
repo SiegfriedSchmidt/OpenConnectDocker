@@ -49,7 +49,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     nftables \
     # for compatibility 
     iptables \
-    iptables-legacy \
 && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /install/ /
