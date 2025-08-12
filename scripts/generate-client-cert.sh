@@ -52,7 +52,9 @@ mkdir -p "${CLIENT_DIR}"
 
 # Expiration
 echo -e "\n[2/4] Certificate validity:"
-read -p "Enter expiration in days (e.g., 365): " EXPIRATION_DAYS
+DEFAULT_EXPIRATION=1825  # 5 years
+read -p "Enter expiration in days [${DEFAULT_EXPIRATION}]: " EXPIRATION_DAYS
+EXPIRATION_DAYS=${EXPIRATION_DAYS:-$DEFAULT_EXPIRATION}
 
 # Certificate files
 CLIENT_KEY="${CLIENT_DIR}/${USERNAME}-key.pem"
