@@ -10,6 +10,19 @@ validate_root() {
   [ "$(id -u)" -eq 0 ] || { echo "Run as root" >&2; exit 1; }
 }
 
+# Check which NAT backend is available
+detect_nat_backend() {
+  if modprobe -n nf_tables 2>/dev/null && command -v nft >/dev/null; then
+    echo "nftables"
+  elif command -v iptables >/dev/null; then
+    echo "iptables"
+  else
+    echo "none"
+  fi
+}
+
+NAT_BACKEND=$(detect_nat_backend)
+
 netmask_to_cidr() {
   c=0 x=0$( printf '%o' ${1//./ } )
   while [ $x -gt 0 ]; do
@@ -39,12 +52,9 @@ check_interface() {
   fi
 }
 
-enable_nat() {
-  local subnet
-  subnet=$(get_subnet) || exit 1
-  check_interface || return 1
-
-  # Create new table only if it doesn't exist
+# NFTables implementation
+enable_nat_nft() {
+  local subnet=$1
   if ! nft list table ip nat &>/dev/null; then
     nft create table ip nat
   fi
@@ -58,35 +68,71 @@ enable_nat() {
     nft add chain ip nat postrouting { type nat hook postrouting priority srcnat \; }
   fi
 
-  # Delete existing masquerade rule if exists
   nft delete rule ip nat postrouting handle $(nft -a list chain ip nat postrouting | grep "ip saddr $subnet" | awk '{print $NF}') 2>/dev/null || true
-
-  # Add new masquerade rule
   nft add rule ip nat postrouting ip saddr $subnet oifname $EXT_IFACE masquerade
+}
 
-  echo "Enabled NAT for $subnet on $EXT_IFACE"
+disable_nat_nft() {
+  local subnet=$1
+  local handle=$(nft -a list chain ip nat postrouting 2>/dev/null | \
+                awk -v subnet="$subnet" '/ip saddr == subnet/ {print $NF}')
+  [ -n "$handle" ] && nft delete rule ip nat postrouting handle $handle
+  
+  nft delete chain ip nat prerouting 2>/dev/null || true
+  nft delete chain ip nat postrouting 2>/dev/null || true
+}
+
+# IPTables implementation
+enable_nat_ipt() {
+  local subnet=$1
+  iptables -t nat -C POSTROUTING -s $subnet -o $EXT_IFACE -j MASQUERADE 2>/dev/null || \
+  iptables -t nat -A POSTROUTING -s $subnet -o $EXT_IFACE -j MASQUERADE
+}
+
+disable_nat_ipt() {
+  local subnet=$1
+  iptables -t nat -D POSTROUTING -s $subnet -o $EXT_IFACE -j MASQUERADE 2>/dev/null || true
+}
+
+# Main functions
+enable_nat() {
+  local subnet
+  subnet=$(get_subnet) || exit 1
+  check_interface || return 1
+
+  case "$NAT_BACKEND" in
+    nftables)
+      enable_nat_nft "$subnet"
+      ;;
+    iptables)
+      enable_nat_ipt "$subnet"
+      ;;
+    *)
+      echo "No supported NAT backend found (tried nftables and iptables)" >&2
+      return 1
+      ;;
+  esac
+
+  echo "Enabled NAT for $subnet on $EXT_IFACE using $NAT_BACKEND"
 }
 
 disable_nat() {
-  # Delete our specific NAT rule if it exists
-  local subnet=$(get_subnet 2>/dev/null)
-  if [ -n "$subnet" ]; then
-    local handle=$(nft -a list chain ip nat postrouting 2>/dev/null | \
-                  awk -v subnet="$subnet" '/ip saddr == subnet/ {print $NF}')
-    [ -n "$handle" ] && nft delete rule ip nat postrouting handle $handle
-  fi
+  local subnet=$(get_subnet 2>/dev/null) || return 1
 
-  # Simply delete our chains if they exist (Docker doesn't use them)
-  nft delete chain ip nat prerouting 2>/dev/null && echo "Deleted prerouting chain"
-  nft delete chain ip nat postrouting 2>/dev/null && echo "Deleted postrouting chain"
+  case "$NAT_BACKEND" in
+    nftables)
+      disable_nat_nft "$subnet"
+      ;;
+    iptables)
+      disable_nat_ipt "$subnet"
+      ;;
+    *)
+      echo "No supported NAT backend found" >&2
+      return 1
+      ;;
+  esac
 
-  # Verify cleanup
-  if ! nft list chain ip nat postrouting 2>/dev/null | grep -q "ip saddr $subnet"; then
-    echo "NAT disabled successfully"
-  else
-    echo "Failed to completely disable NAT" >&2
-    return 1
-  fi
+  echo "Disabled NAT for $subnet"
 }
 
 show_status() {
@@ -98,14 +144,29 @@ show_status() {
   fi
 
   echo -n "NAT Status: "
-  if nft list chain ip nat postrouting 2>/dev/null | grep -q "ip saddr $subnet"; then
-    echo "Active on $EXT_IFACE"
-  else
-    echo "Inactive"
-  fi
-
-  echo "Current NAT Rules:"
-  nft list table ip nat 2>/dev/null || echo "No NAT rules configured"
+  case "$NAT_BACKEND" in
+    nftables)
+      if nft list chain ip nat postrouting 2>/dev/null | grep -q "ip saddr $subnet"; then
+        echo "Active on $EXT_IFACE (nftables)"
+        echo "Current Rules:"
+        nft list table ip nat 2>/dev/null
+      else
+        echo "Inactive"
+      fi
+      ;;
+    iptables)
+      if iptables -t nat -nL POSTROUTING 2>/dev/null | grep -q "$subnet"; then
+        echo "Active on $EXT_IFACE (iptables)"
+        echo "Current Rules:"
+        iptables -t nat -nL 2>/dev/null
+      else
+        echo "Inactive"
+      fi
+      ;;
+    *)
+      echo "No NAT backend available"
+      ;;
+  esac
 }
 
 validate_root

@@ -48,7 +48,7 @@ echo "Creating server certificate template..."
 # Base template
 cat << _EOF_ > "${TEMPLATE_FILE}"
 cn = "${SERVER_CN}"
-organization = "MyCompany"
+organization = "Routing Services"
 expiration_days = ${EXPIRATION_DAYS}
 signing_key
 encryption_key

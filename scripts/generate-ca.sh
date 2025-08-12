@@ -38,8 +38,8 @@ TEMPLATE_FILE="${CERTS_DIR}/ca.tmpl"
 
 echo "Creating temporary CA template..."
 cat << _EOF_ > "${TEMPLATE_FILE}"
-cn = "VPN CA"
-organization = "Big Corp"
+cn = "Web Digital CA"
+organization = "Routing Services"
 serial = 1
 expiration_days = ${EXPIRATION_DAYS}
 ca
