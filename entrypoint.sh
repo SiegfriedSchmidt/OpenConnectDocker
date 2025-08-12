@@ -8,10 +8,9 @@ echo "Run generate-server-cert.sh script..."
 echo "Run generate-crl.sh script..."
 /usr/local/bin/generate-crl.sh
 
-# if [[ "${ENABLE_INTERNET}" =~ ^(yes|true)$ ]]; then
-#     /usr/local/bin/network-manager.sh enable-internet
-# else
-#     echo "Internet access is not enabled."
-# fi
+if [[ "${FORWARD_TO_EXTERNAL_INTERFACE}" =~ ^(yes|true)$ ]]; then
+    /usr/local/bin/network-manager.sh enable
+fi
+/usr/local/bin/network-manager.sh status
 
 exec "$@"

@@ -7,12 +7,8 @@ services:
     ports:
       - "8443:443"
     environment:
-      # Disable auto signed certificates if you already have letsencrypt certs
-      - DISABLE_SELF_SIGNED_CERTS=false
-      # Use iptables to forward traffic to your external interface
-      - ENABLE_INTERNET=true
-      # Set VPN_SUBNET according to your ocserv.conf!
-      - VPN_SUBNET=10.10.10.0/24
+      # true value executes "network-manager.sh enable" to forward the vpn subnet to the external interface (default eth0)
+      - FORWARD_TO_EXTERNAL_INTERFACE=true
     volumes:
       - ./ocserv.conf:/ocserv.conf:ro
       - ./data:/etc/ocserv

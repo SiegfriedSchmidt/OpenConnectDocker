@@ -46,9 +46,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # minor deps (some of them already installed)
     liblz4-1 \
     libseccomp2 \
+    nftables \
 && rm -rf /var/lib/apt/lists/*
-
-#libnl-route-3-200
 
 COPY --from=builder /install/ /
 
