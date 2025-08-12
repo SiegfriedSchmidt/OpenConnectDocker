@@ -10,11 +10,14 @@ validate_root() {
   [ "$(id -u)" -eq 0 ] || { echo "Run as root" >&2; exit 1; }
 }
 
-# Check which NAT backend is available
+# Detect available NAT backend
 detect_nat_backend() {
-  if modprobe -n nf_tables 2>/dev/null && command -v nft >/dev/null; then
+  # Check for iptables-legacy first (Synology compatibility)
+  if command -v nft >/dev/null && nft list ruleset >/dev/null 2>&1; then
     echo "nftables"
-  elif command -v iptables >/dev/null; then
+  elif command -v iptables-legacy >/dev/null && iptables-legacy -L >/dev/null 2>&1; then
+    echo "iptables-legacy"
+  elif command -v iptables >/dev/null && iptables -L >/dev/null 2>&1; then
     echo "iptables"
   else
     echo "none"
@@ -52,7 +55,7 @@ check_interface() {
   fi
 }
 
-# NFTables implementation
+# Backend implementations
 enable_nat_nft() {
   local subnet=$1
   if ! nft list table ip nat &>/dev/null; then
@@ -85,13 +88,14 @@ disable_nat_nft() {
 # IPTables implementation
 enable_nat_ipt() {
   local subnet=$1
-  iptables -t nat -C POSTROUTING -s $subnet -o $EXT_IFACE -j MASQUERADE 2>/dev/null || \
-  iptables -t nat -A POSTROUTING -s $subnet -o $EXT_IFACE -j MASQUERADE
+  local ipt_cmd=${2:-iptables}
+  $ipt_cmd -t nat -C POSTROUTING -s $subnet -o $EXT_IFACE -j MASQUERADE 2>/dev/null || \
+  $ipt_cmd -t nat -A POSTROUTING -s $subnet -o $EXT_IFACE -j MASQUERADE
 }
 
 disable_nat_ipt() {
-  local subnet=$1
-  iptables -t nat -D POSTROUTING -s $subnet -o $EXT_IFACE -j MASQUERADE 2>/dev/null || true
+  local ipt_cmd=${1:-iptables}
+  $ipt_cmd -t nat -D POSTROUTING -s $(get_subnet) -o $EXT_IFACE -j MASQUERADE 2>/dev/null || true
 }
 
 # Main functions
@@ -104,11 +108,11 @@ enable_nat() {
     nftables)
       enable_nat_nft "$subnet"
       ;;
-    iptables)
-      enable_nat_ipt "$subnet"
+    iptables|iptables-legacy)
+      enable_nat_ipt "$subnet" "$NAT_BACKEND"
       ;;
     *)
-      echo "No supported NAT backend found (tried nftables and iptables)" >&2
+      echo "No supported NAT backend found" >&2
       return 1
       ;;
   esac
@@ -117,14 +121,12 @@ enable_nat() {
 }
 
 disable_nat() {
-  local subnet=$(get_subnet 2>/dev/null) || return 1
-
   case "$NAT_BACKEND" in
     nftables)
-      disable_nat_nft "$subnet"
+      disable_nat_nft
       ;;
-    iptables)
-      disable_nat_ipt "$subnet"
+    iptables|iptables-legacy)
+      disable_nat_ipt "$NAT_BACKEND"
       ;;
     *)
       echo "No supported NAT backend found" >&2
@@ -132,7 +134,7 @@ disable_nat() {
       ;;
   esac
 
-  echo "Disabled NAT for $subnet"
+  echo "Disabled NAT using $NAT_BACKEND"
 }
 
 show_status() {
@@ -154,11 +156,11 @@ show_status() {
         echo "Inactive"
       fi
       ;;
-    iptables)
-      if iptables -t nat -nL POSTROUTING 2>/dev/null | grep -q "$subnet"; then
-        echo "Active on $EXT_IFACE (iptables)"
-        echo "Current Rules:"
-        iptables -t nat -nL 2>/dev/null
+    iptables|iptables-legacy)
+      local ipt_cmd="$NAT_BACKEND"
+      if $ipt_cmd -t nat -nL POSTROUTING 2>/dev/null | grep -q "$subnet"; then
+        echo "Active on $EXT_IFACE ($NAT_BACKEND)"
+        $ipt_cmd -t nat -nL 2>/dev/null
       else
         echo "Inactive"
       fi
