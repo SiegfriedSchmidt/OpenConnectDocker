@@ -47,6 +47,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     liblz4-1 \
     libseccomp2 \
     nftables \
+    iptables \
 && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /install/ /
