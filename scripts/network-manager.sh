@@ -150,20 +150,21 @@ show_status() {
     nftables)
       if nft list chain ip nat postrouting 2>/dev/null | grep -q "ip saddr $subnet"; then
         echo "Active on $EXT_IFACE (nftables)"
-        echo "Current Rules:"
-        nft list table ip nat 2>/dev/null
       else
         echo "Inactive"
       fi
+      echo "Current Rules:"
+      nft list table ip nat 2>/dev/null
       ;;
     iptables|iptables-legacy)
       local ipt_cmd="$NAT_BACKEND"
       if $ipt_cmd -t nat -nL POSTROUTING 2>/dev/null | grep -q "$subnet"; then
         echo "Active on $EXT_IFACE ($NAT_BACKEND)"
-        $ipt_cmd -t nat -nL 2>/dev/null
       else
         echo "Inactive"
       fi
+      echo "Current Rules:"
+      $ipt_cmd -t nat -nL 2>/dev/null
       ;;
     *)
       echo "No NAT backend available"
