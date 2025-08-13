@@ -1,5 +1,5 @@
 # Docker Compose
-Run container in docker compose is preffered
+It is preferable to run the container in docker compose.
 ```yml
 services:
   ocserv:
@@ -25,7 +25,7 @@ services:
     restart: unless-stopped
 ```
 
-Execute this code on your machine with docker engine running
+Run this code on your computer with running docker engine
 
 ```bash
 mkdir ocserv
@@ -38,7 +38,7 @@ docker-compose up -d
 The openconnect will be available on port 8443
 
 # Authentification
-This docker image allows two methods of authentification. By default in ocserv.conf certficate authentification enabled
+This docker image supports two authentication methods. Certification authentication is enabled in ocserv.conf by default.
 
 ### Password
 Create user with password (follow the prompts)
