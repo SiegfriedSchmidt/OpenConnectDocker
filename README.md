@@ -1,5 +1,6 @@
 # Docker Compose
-It is preferable to run the container in docker compose.
+
+Run container in docker compose is preffered
 ```yml
 services:
   ocserv:
@@ -12,8 +13,8 @@ services:
       # true value executes "network-manager.sh enable" to forward the vpn subnet to the external interface (default eth0)
       - FORWARD_TO_EXTERNAL_INTERFACE=true
     volumes:
-      - ./ocserv.conf:/ocserv.conf:ro # configuration
-      - ./data:/etc/ocserv #
+      - ./ocserv.conf:/ocserv.conf:ro
+      - ./data:/etc/ocserv
     devices:
       - /dev/net/tun:/dev/net/tun
     cap_add:
@@ -25,7 +26,7 @@ services:
     restart: unless-stopped
 ```
 
-Run this code on your computer with running docker engine
+Execute this code on your machine with docker engine running
 
 ```bash
 mkdir ocserv
@@ -38,45 +39,67 @@ docker-compose up -d
 The openconnect will be available on port 8443
 
 # Authentification
-This docker image supports two authentication methods. Certification authentication is enabled in ocserv.conf by default.
+
+This docker image allows two methods of authentification. By default in ocserv.conf certficate authentification enabled
 
 ### Password
+
 Create user with password (follow the prompts)
 ```bash
 docker exec -it ocserv ocpasswd -c /etc/ocserv/ocpasswd username
 ```
 
 ### Certificate
+
 Create user certificate (follow the prompts)
 ```bash
 docker exec -it ocserv generate-client-cert.sh
 ```
 
 # Clients
+
 ### Windows
+
 - [openconnect-GUI](https://gui.openconnect-vpn.net/download/)
 - [anyconnect](https://apps.microsoft.com/detail/9wzdncrdj8lh?hl=en-US&gl=US)
 - [oneconnect](https://apps.microsoft.com/detail/clavister-oneconnect/9P2L1BWS7BB6?hl=en-US&gl=US)
 
 ### Linux
+
 [openconnect installation](https://www.infradead.org/openconnect/packages.html)
 ```bash
 sudo apt install openconnect
 ```
 
 ### MacOS / IOS 
+
 - [anyconnect](https://apps.apple.com/us/app/cisco-secure-client/id1135064690)
 - [oneconnect](https://apps.apple.com/us/app/clavister-oneconnect/id1565970099)
+> [!TIP]
+> To install the certificate on iOS, you should click on the certificate and then share it with the anyconnect app.
+> 
+> For macOS, you should create a small web server (for example, http.server in python) and import the certificate using the URL
 
 ### Android
+
 - [anyconnect](https://play.google.com/store/apps/details?id=com.cisco.anyconnect.vpn.android.avf&hl=en)
 - [openconnect](https://play.google.com/store/apps/details?id=xyz.opcx.mph&pcampaignid=web_share)
 - [oneconnect](https://play.google.com/store/apps/details?id=com.clavister.oneconnect&hl=en_US)
 
 # Configuration 
+
 [Ocserv documentation](https://ocserv.openconnect-vpn.net/ocserv.8.html)
 
 # Links
+
 [How vpn works](https://ocserv.openconnect-vpn.net/technical.html)
 
 [Ocserv source code repository](https://gitlab.com/openconnect/ocserv)
+
+# Support
+
+**If this project is useful to you, you may wish to give it a**:star2:
+
+- BTC (Bitcoin): `bc1qkrpftuqy3suh9j3e348s06hdtxhk3tg8382nwj`
+- ETH (Ethereum): `0xDBbF67c7f998837E9Ae2175327Ba31197991c031`
+- TON (TON): `UQArWditRe48dGghp1bVDOnIprFZcVKzElQqQb_q68D5Im4E`
