@@ -5,7 +5,7 @@ services:
     image: siegfriedschmidt/ocserv
     container_name: ocserv
     ports:
-      - "8443:443"
+      - "443:443"
     environment:
       # true value executes "network-manager.sh enable" to forward the vpn subnet to the external interface (default eth0)
       - FORWARD_TO_EXTERNAL_INTERFACE=true
