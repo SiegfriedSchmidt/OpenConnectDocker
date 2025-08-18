@@ -86,7 +86,7 @@ docker exec -it ocserv generate-client-cert.sh
 
 Revoke user certificate
 ```bash
-docker exec -it ocserv revoke-client-cert.sh
+docker exec -it ocserv revoke-client-cert.sh username
 ```
 
 ## Clients
